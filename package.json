@@ -1,6 +1,6 @@
 {
   "name": "live-comments",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drop-in comment/pin widget for Next.js apps — let external reviewers leave feedback on any page element",
   "license": "MIT",
   "type": "module",
@@ -28,8 +28,9 @@
     "src/migrations"
   ],
   "scripts": {
-    "build": "tsup && npm run build:css",
+    "build": "tsup && npm run build:css && npm run build:dts",
     "build:css": "tailwindcss -i ./styles/globals.css -o ./dist/styles.css --minify",
+    "build:dts": "echo 'export declare function LiveComments(): import(\"react\").JSX.Element | null;' > dist/index.d.ts",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
