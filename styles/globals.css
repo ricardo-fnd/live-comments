@@ -1,0 +1,21 @@
+@tailwind components;
+@tailwind utilities;
+
+/* Reset styles scoped to live-comments widgets */
+[data-live-comments] *,
+[data-live-comments] *::before,
+[data-live-comments] *::after {
+  box-sizing: border-box;
+}
+
+[data-live-comments] {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+[data-live-comments] button,
+[data-live-comments] a,
+[data-live-comments] [role="button"] {
+  cursor: pointer;
+}
