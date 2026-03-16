@@ -6,6 +6,7 @@ import type { Comment } from "../actions/comments.js";
 
 interface PinIndicatorProps {
   comments: Comment[];
+  currentPage: string;
   onClickPin: (comment: Comment) => void;
   isAdmin: boolean;
   onResolve: (id: string) => void;
@@ -38,12 +39,12 @@ function timeAgo(dateStr: string): string {
   return `há ${days}d`;
 }
 
-export function PinIndicator({ comments, onClickPin, isAdmin, onResolve, onDelete, onOpenPanel }: PinIndicatorProps) {
+export function PinIndicator({ comments, currentPage, onClickPin, isAdmin, onResolve, onDelete, onOpenPanel }: PinIndicatorProps) {
   const [pins, setPins] = useState<PinPosition[]>([]);
   const [expandedPinId, setExpandedPinId] = useState<string | null>(null);
 
   const updatePins = useCallback(() => {
-    const pinnedComments = comments.filter((c) => c.css_selector && c.status === "open");
+    const pinnedComments = comments.filter((c) => c.css_selector && c.status === "open" && c.page_path === currentPage);
 
     const positions: PinPosition[] = [];
 
@@ -63,7 +64,7 @@ export function PinIndicator({ comments, onClickPin, isAdmin, onResolve, onDelet
     }
 
     setPins(positions);
-  }, [comments]);
+  }, [comments, currentPage]);
 
   useEffect(() => {
     updatePins();

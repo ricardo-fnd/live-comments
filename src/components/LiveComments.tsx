@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useReducer, useEffect, useCallback } from 'react'
+import React, { useReducer, useEffect, useCallback, useState, useRef } from 'react'
 import { Toolbar } from './Toolbar.js'
 import { CommentPanel } from './CommentPanel.js'
 import { PinOverlay } from './PinOverlay.js'
@@ -144,11 +144,38 @@ export function LiveComments() {
     pendingAction: null,
   })
 
-  // Get current page path
-  const getPagePath = useCallback(() => {
-    if (typeof window === 'undefined') return '/'
-    return window.location.pathname
+  // Track current page path reactively (works with client-side navigation)
+  const [currentPage, setCurrentPage] = useState(() =>
+    typeof window === 'undefined' ? '/' : window.location.pathname
+  )
+  const currentPageRef = useRef(currentPage)
+  currentPageRef.current = currentPage
+
+  useEffect(() => {
+    const check = () => {
+      const path = window.location.pathname
+      if (path !== currentPageRef.current) {
+        setCurrentPage(path)
+      }
+    }
+
+    // Intercept pushState/replaceState for SPA navigation
+    const origPush = history.pushState.bind(history)
+    const origReplace = history.replaceState.bind(history)
+    history.pushState = (...args) => { origPush(...args); check() }
+    history.replaceState = (...args) => { origReplace(...args); check() }
+
+    window.addEventListener('popstate', check)
+
+    return () => {
+      history.pushState = origPush
+      history.replaceState = origReplace
+      window.removeEventListener('popstate', check)
+    }
   }, [])
+
+  // Keep getPagePath for existing call sites but now it returns the reactive value
+  const getPagePath = useCallback(() => currentPage, [currentPage])
 
   // Load comments + check admin session + restore author name on mount
   useEffect(() => {
@@ -463,6 +490,7 @@ export function LiveComments() {
 
       <PinIndicator
         comments={state.comments}
+        currentPage={getPagePath()}
         onClickPin={handleClickPin}
         isAdmin={state.isAdmin}
         onResolve={handleResolve}
